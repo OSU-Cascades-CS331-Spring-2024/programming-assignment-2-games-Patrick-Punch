@@ -101,11 +101,28 @@ class OthelloBoard(Board):
         return pieces_flipped
 
     def has_legal_moves_remaining(self, symbol):
+        num_moves = 0
         for c in range (0, self.cols):
             for r in range (0, self.rows):
                 if self.is_cell_empty(c, r) and self.is_legal_move(c, r, symbol):
+                    num_moves += 1
                     return True
         return False
+
+    def is_terminal_state(self, p1, p2):
+        if not self.has_legal_moves_remaining(p1) and not self.has_legal_moves_remaining(p2):
+            return True
+        else:
+            return False
+
+    def num_legal_moves_remaining(self, symbol):
+        available_moves = []
+        for c in range (0, self.cols):
+            for r in range (0, self.rows):
+                if self.is_cell_empty(c, r) and self.is_legal_move(c, r, symbol):
+                    move = [c,r]
+                    available_moves.append(move)
+        return available_moves
 
     def count_score(self, symbol):
         score = 0
@@ -118,7 +135,3 @@ class OthelloBoard(Board):
     def play_move(self, col, row, symbol):
         self.set_cell(col, row, symbol)
         self.flip_pieces(col, row, symbol)
-
-
-
-
