@@ -40,16 +40,17 @@ class MinimaxPlayer(Player):
             self.oppSym = 'X'
     
     def clone(self):
-        return MinimaxPlayer(self.oppSym)
+        opp = MinimaxPlayer(self.oppSym)
+        return opp
 
     def utility(self, board):
         game_result = 0
         score = board.count_score(self.symbol)
         if score > board.count_score(self.oppSym):
             game_result = 1 # victory
-        elif score < board.count_score(self.oppSym):
+        if score < board.count_score(self.oppSym):
             game_result = -1 # defeat
-        elif score == board.count_score(self.oppSym):
+        if score == board.count_score(self.oppSym):
             game_result == 0 # tie
         return game_result
         #     Source: http://home.datacomm.ch/t_wolf/tw/misc/reversi/html/index.html
@@ -86,82 +87,128 @@ class MinimaxPlayer(Player):
         # print("Reccomended Move: ", max(scores))
         return available_moves
 
+# function MINIMAX-SEARCH(game, state) returns an action 
+    # player <- game.To-MOVE(state)
+    # value, move <- MAX-VALUE(game, state)
+    # return move
     def minimax_search(self, board, depth):
         value, move = self.max_value(board, depth)
         print(value)
         print("Best Move Using MINIMAX: ", move)
         return move
 
+    def is_cornered(self, board, symbol):
+        weighted_score = 0
+        corners = [[0,0], [0, 3], [3,0], [3,3]]
+        for pos in corners:
+            c = pos[0]
+            r = pos[1]
+            if board.grid[c][r] == symbol:
+                weighted_score += 5
+        return weighted_score
+
+#function MAX-VALUE(game, state) returns a(utility, move) pair
+    # if game.IS-TERMINAL(state) then return game.UTILITY (state, player), null
+    # v, move <- -∞, null
+    # for each a in game.ACTIONS(state) do
+    # v2, a2 <- MIN-VALUE(game, game.RESULT(state, a)) 
+    # if v2 > v then
+        # v, move <- v2, a
+    # return v, move
     def max_value(self, board, depth):
-        terminal_state = False
         if board.is_terminal_state(self.symbol, self.oppSym):
-            terminal_state = True
-        if terminal_state or depth == 0:
-            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-            return self.utility(board), None
+            if self.utility(board) == 1:
+                print('Max Win')
+                return self.utility(board) + self.is_cornered(board, self.symbol) + 5, None
+            if self.utility(board) == 0:
+                print('Max Tie')
+                return self.utility(board) + self.is_cornered(board, self.symbol) + 1, None
+            if self.utility(board) == -1:
+                print('Max Loss')
+                return self.utility(board) - self.is_cornered(board, self.symbol) - 5, None
+        if depth == 0:
+            # print('Max Outcome State: ', self.utility(board))
+            return self.utility(board) + self.is_cornered(board, self.symbol), None
         else:
             v, move = float('-inf'), None
             moves = self.successor(board)
+            if moves == []:
+                print('Skipping (max) turn')
+                temp_board = board.clone_of_board()
+                v2, a2 = self.min_value(temp_board, depth -1)
+                if v2 > v:
+                    v, move = v2, None
+                return v, move
+            # print("MAX (O) moves: ", self.symbol, moves)
             for a in moves:
-                print(a)
+                # print("MAX Move ->", a)
                 succ_board = board.clone_of_board()
                 col = a[0]
                 row = a[1]
                 succ_board.play_move(col, row, self.symbol)
-                print("\nMAX --")
-                succ_board.display()
+                # print("\nMAX --")
+                # succ_board.display()
                 v2, a2 = self.min_value(succ_board, depth-1)
-                print("Max - V2, A2: ", v2, a2, "V, A: ", v, a)
+                # print("Max - V2, A2: ", v2, a2, "V, A: ", v, a)
                 if v2 > v:
                     v, move = v2, a
+                # print("MAX V,move,v2,a2 ->", v, move, v2, a2)
+                # else:
+                    # print("symbol score -> ", board.count_score(self.symbol), "move -> ", a, "v -> ", v, "default move", move, 'v2 -> ', v2, 'a2 -> ', a2)
+            # print('foo-max')
+            if move is None:
+                print("look here dummy ", moves)
             return v, move
 
+# function MIN-VALUE(game, state) returns a(utility, move) pair
+    # if game.IS-TERMINAL(state) then return game.UTILITY (state, player), null
+    # v, move <- +∞, null
+    # for each a in game.ACTIONS(state) do
+    # v2, a2 <- MAX-VALUE(game, game.RESULT(state, a)) 
+    #if v2 < v then
+        # v, move <- v2, a 
+    #return v, move
     def min_value(self, board, depth):
-        terminal_state = False
         if board.is_terminal_state(self.symbol, self.oppSym):
-            terminal_state = True
-        if terminal_state or depth == 0:
-            # print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-            # print(self.utility(board))
-            return self.utility(board), None
+            if self.utility(board) == 1:
+                print("Min Win")
+                return self.utility(board) + self.is_cornered(board, self.symbol) + 5, None
+            if self.utility(board) == 0:
+                print('Min Tie')
+                return self.utility(board) + self.is_cornered(board, self.symbol) + 1, None
+            if self.utility(board) == -1:
+                print('Min Loss')
+                return self.utility(board) - self.is_cornered(board, self.symbol) - 5, None
+        if depth == 0:
+            # print('Mini Outcome State: ', self.utility(board))
+            # # board.display()
+            # # print('mini solution ^^^^')
+            return self.utility(board) + self.is_cornered(board, self.symbol), None
         else:
             v, move = float('inf'), None
             moves = self.successor(board)
+            if moves == []:
+                print('Skipping (min) turn')
+                temp_board = board.clone_of_board()
+                v2, a2 = self.max_value(temp_board, depth -1)
+                if v2 < v:
+                    v, move = v2, None
+                return v, move
+            # print("Min (X) moves ->", self.oppSym, moves)
             for a in moves:
+                # print('mini move -> ', a)
                 succ_board = board.clone_of_board()
+                # print('Column,Row of Move: ', a, 'c: ', a[0], 'r: ', a[1])
                 col = a[0]
                 row = a[1]
                 succ_board.play_move(col, row, self.oppSym)
+                # print('\n mini --')
+                # succ_board.display()
                 v2, a2 = self.max_value(succ_board, depth-1)
                 # print("Min - V2, A2: ", v2, a2, "V, A: ", v, a)
                 if v2 < v:
                     v, move = v2, a
             return v, move
-
-
-
-# function MINIMAX-SEARCH(game, state) returns an action 
-    # player <- game.To-MOVE(state)
-    # value, move <- MAX-VALUE(game, state)
-    # return move
-
-#function MAX- VALUE(game, state) returns a(utility, move) pair
-    # if game.IS-TERMINAL(state) then return game.UTILITY (state, player), null
-    # v, move <- -∞, null
-    # for each a in game.ACTIONS(state) do
-    # v2, a2 <- MIN-VALUE(game, game.RESULT(state, a)) 
-    # if v2 >v then
-        # v, move + v2, a
-    # return v, move
-
-# function MIN- VALUE(game, state) returns a(utility, move) pair
-    # if game.IS-TERMINAL(state) then return game.UTILITY (state, player), null
-    # v, move <- +∞, null
-    # for each a in game.ACTIONS(state) do
-    # v2, a2 - MAX- VALUE(game, game.RESULT(state, a)) 
-    #if v2 < v then
-        # v, move <- v2, a 
-    #return v, move
 
     def get_move(self, board):
         result = self.minimax_search(board, 16)
