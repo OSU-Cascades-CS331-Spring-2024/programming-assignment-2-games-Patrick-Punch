@@ -11,12 +11,7 @@ How to play a game:
 2. Choose `human`, or `minimax` as the player types.
 3. Follow the prompts to choose where to place stones.
 
-TODO: 
-1. Utility Function
-
-2. Successor Function
-
-3. Minimax Function
+** In my code, I have two files that contain code written completely by one of my peers, Kevin Walsh. The code exists in this directory because we were comparing the time it takes to run each of our algorithms, in an effort to have a greater understanding of the complexity of our own implementations. His code was added after I completed my own implementation, and was not used in any way to complete any of my own work. **
 
 4. Analysis Requirements:
     - Add in a few lines of code to allow you to keep track of the time it takes the minimax player to

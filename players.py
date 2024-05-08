@@ -73,24 +73,6 @@ class MinimaxPlayer(Player):
         print("Best Move Using MINIMAX: ", move)
         return move
 
-    def is_cornered(self, board, symbol):
-        weighted_score = 0
-        corners = [[0,0], [0, 3], [3,0], [3,3]]
-        for pos in corners:
-            c = pos[0]
-            r = pos[1]
-            if board.grid[c][r] == symbol:
-                weighted_score += 15
-        return weighted_score
-
-#function MAX-VALUE(game, state) returns a(utility, move) pair
-    # if game.IS-TERMINAL(state) then return game.UTILITY (state, player), null
-    # v, move <- -∞, null
-    # for each a in game.ACTIONS(state) do
-    # v2, a2 <- MIN-VALUE(game, game.RESULT(state, a)) 
-    # if v2 > v then
-        # v, move <- v2, a
-    # return v, move
     def max_value(self, board, depth):
         if board.is_terminal_state(self.symbol, self.oppSym):
             if self.utility(board) > 0:
@@ -120,6 +102,14 @@ class MinimaxPlayer(Player):
                 if v2 > v:
                     v, move = v2, a
             return v, move
+            # function MAX-VALUE(game, state) returns a(utility, move) pair
+            #     if game.IS-TERMINAL(state) then return game.UTILITY (state, player), null
+            #     v, move <- -∞, null
+            #     for each a in game.ACTIONS(state) do
+            #     v2, a2 <- MIN-VALUE(game, game.RESULT(state, a)) 
+            #     if v2 > v then
+            #         v, move <- v2, a
+            #     return v, move
 
 # function MIN-VALUE(game, state) returns a(utility, move) pair
     # if game.IS-TERMINAL(state) then return game.UTILITY (state, player), null
@@ -171,6 +161,6 @@ class MinimaxPlayer(Player):
         print ("total moves =", self.num_moves)
         return col, row
 
-        #- You will need to implement the Minimax-Decision, Max-Value and Min-Value functions on that slide. You should be sure to include a depth parameter to ensure that your minimax player will make a decision in a timely manner (less than two seconds), regardless of the board size. You will need to come up with a heuristic evaluation function to apply when you hit the depth limit in your search. You will need to override the default get_move function of the Player class for the MinimaxPlayer class in order to produce an action using Minimax.
-        # In addition to the functionality described above, you may need to implement some other code to
-        # do things like bookkeeping.
+#         #- You will need to implement the Minimax-Decision, Max-Value and Min-Value functions on that slide. You should be sure to include a depth parameter to ensure that your minimax player will make a decision in a timely manner (less than two seconds), regardless of the board size. You will need to come up with a heuristic evaluation function to apply when you hit the depth limit in your search. You will need to override the default get_move function of the Player class for the MinimaxPlayer class in order to produce an action using Minimax.
+#         # In addition to the functionality described above, you may need to implement some other code to
+#         # do things like bookkeeping.
